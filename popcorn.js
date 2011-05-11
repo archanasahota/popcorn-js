@@ -752,6 +752,10 @@
         options.end = this.duration();
       }
 
+      if ( options.end == false ) {
+        options.end = !this.duration() ? Number.MAX_VALUE : this.duration() + 1 ;
+      }
+
       //  If a _setup was declared, then call it before
       //  the events commence
       if ( "_setup" in setup && typeof setup._setup === "function" ) {
