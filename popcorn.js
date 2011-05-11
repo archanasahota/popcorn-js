@@ -749,16 +749,26 @@
       }
 
       if ( !( "end" in options ) ) {
+
           var isReady = function( that ) {
-            if(that.video.readyState == 4){
+
+            if( that.video.readyState == 4 ){
+
               options.end = that.duration();
+
             } else {
+
               global.setTimeout( function() { 
+
                 isReady( that );
-              }, 1);
+
+              }, 1 );
+
             }
+
           };
-          isReady(this);
+
+          isReady( this );
           
       }
 
