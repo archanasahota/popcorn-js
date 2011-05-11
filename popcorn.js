@@ -168,10 +168,10 @@
       //  Wrap true ready check
       var isReady = function( that ) {
 
-        if ( that.video.readyState >= 2 ) {
+        if ( that.video.readyState >=2 ) {
           //  Adding padding to the front and end of the arrays
           //  this is so we do not fall off either end
-
+          
           var duration = that.video.duration;
           //  Check for no duration info (NaN)
           var videoDurationPlus = duration != duration ? Number.MAX_VALUE : duration + 1;
@@ -749,7 +749,17 @@
       }
 
       if ( !( "end" in options ) ) {
-        options.end = this.duration();
+          var isReady = function( that ) {
+            if(that.video.readyState == 4){
+              options.end = that.duration();
+            } else {
+              global.setTimeout( function() { 
+                isReady( that );
+              }, 1);
+            }
+          };
+          isReady(this);
+          
       }
 
       //  If a _setup was declared, then call it before
