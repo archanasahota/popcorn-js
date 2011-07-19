@@ -710,6 +710,8 @@
     if ( track._id ) {
       Popcorn.addTrackEvent.ref( obj, track );
     }
+
+    Popcorn.timeUpdate( obj, event );
   };
 
   // Internal Only - Adds track event references to the instance object's trackRefs hash table
