@@ -711,7 +711,7 @@
       Popcorn.addTrackEvent.ref( obj, track );
     }
 
-    Popcorn.timeUpdate( obj, event );
+    Popcorn.timeUpdate( obj, null );
   };
 
   // Internal Only - Adds track event references to the instance object's trackRefs hash table
@@ -902,7 +902,30 @@
           // remove track event
           Popcorn.removeTrackEvent( that, tracksByEnd[ tracks.endIndex ]._id );
           return;
-        }
+        } 
+      }
+    // time bar is not moving ( video is paused )
+    } else if ( previousTime === currentTime ) {
+     
+      // Dont advance the endIndex, instead advance a copy of it
+      var endIndex = tracks.endIndex;
+
+      while ( tracksByEnd[ endIndex ] && tracksByEnd[ endIndex ].end > currentTime ) {
+        // if plugin does not exist on this instance, remove it
+        if ( !tracksByEnd[ endIndex ]._natives || !!that[ tracksByEnd[ endIndex ]._natives.type ] ) {
+          if ( tracksByEnd[ endIndex ].start <= currentTime &&
+            tracksByEnd[ endIndex ]._running === false  &&
+            that.data.disabled.indexOf( tracksByEnd[ endIndex ]._natives.type ) === -1 ) {
+
+            tracksByEnd[ endIndex ]._running = true;
+            tracksByEnd[ endIndex ]._natives.start.call( that, event, tracksByEnd [tracks.endIndex] );
+          }
+            endIndex--;
+        } else {
+          // remove track event
+          Popcorn.removeTrackEvent( that, tracksByEnd[ endIndex ]._id );
+          return;
+        } 
       }
     }
 
