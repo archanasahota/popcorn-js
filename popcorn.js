@@ -959,8 +959,8 @@
       return this;
     },
 
-    timeUpdate: function( that, event ) {
-      Popcorn.timeUpdate.call( null, that, event );
+    timeUpdate: function( event ) {
+      Popcorn.timeUpdate.call( null, this, event );
       return this; 
     }
   });
