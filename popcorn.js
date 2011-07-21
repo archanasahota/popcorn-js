@@ -825,7 +825,7 @@
     return obj.data.history[ obj.data.history.length - 1 ];
   };
 
-Popcorn.timeUpdate = function( that, event ) {
+  Popcorn.timeUpdate = function( that, event ) {
 
     var currentTime    = that.media.currentTime,
         previousTime   = that.data.trackEvents.previousUpdateTime,
@@ -936,7 +936,7 @@ Popcorn.timeUpdate = function( that, event ) {
             tracksByStart[ tracks.startIndex ]._natives.start.call( that, event, tracksByStart[ tracks.startIndex ] );
 
           }
-        tracks..startIndex++;
+        tracks.startIndex++;
         } else {
           // remove track event
           Popcorn.removeTrackEvent( that, tracksByStart[ tracks.startIndex ]._id );
