@@ -907,26 +907,42 @@
     // time bar is not moving ( video is paused )
     } else if ( previousTime === currentTime ) {
      
-      // Dont advance the endIndex, instead advance a copy of it
-      var endIndex = tracks.endIndex;
+     var startIndex = tracks.startIndex,
+         endIndex = tracks.endIndex;
 
-      while ( tracksByEnd[ endIndex ] && tracksByEnd[ endIndex ].end > currentTime ) {
-        // if plugin does not exist on this instance, remove it
+     while ( tracksByEnd[ endIndex ] && tracksByEnd[ endIndex ].end <= currentTime ) {
+        //  If plugin does not exist on this instance, remove it
         if ( !tracksByEnd[ endIndex ]._natives || !!that[ tracksByEnd[ endIndex ]._natives.type ] ) {
-          if ( tracksByEnd[ endIndex ].start <= currentTime &&
-            tracksByEnd[ endIndex ]._running === false  &&
-            that.data.disabled.indexOf( tracksByEnd[ endIndex ]._natives.type ) === -1 ) {
-
-            tracksByEnd[ endIndex ]._running = true;
-            tracksByEnd[ endIndex ]._natives.start.call( that, event, tracksByEnd [tracks.endIndex] );
+          if ( tracksByEnd[ endIndex ]._running === true ) {
+            tracksByEnd[ endIndex ]._running = false;
+            tracksByEnd[ endIndex ]._natives.end.call( that, event, tracksByEnd[ endIndex ] );
+            tracks.endIndex++;          
           }
-            endIndex--;
-            tracks.endIndex--;
+          endIndex++;
         } else {
           // remove track event
           Popcorn.removeTrackEvent( that, tracksByEnd[ endIndex ]._id );
           return;
-        } 
+        }
+      }
+
+      while ( tracksByStart[ startIndex ] && tracksByStart[ startIndex ].start <= currentTime ) {
+        //  If plugin does not exist on this instance, remove it
+        if ( !tracksByStart[ startIndex ]._natives || !!that[ tracksByStart[ startIndex ]._natives.type ] ) {
+          if ( tracksByStart[ startIndex ].end > currentTime &&
+                tracksByStart[ startIndex ]._running === false &&
+                  that.data.disabled.indexOf( tracksByStart[ startIndex ]._natives.type ) === -1 ) {
+
+            tracksByStart[ startIndex ]._running = true;
+            tracksByStart[ startIndex ]._natives.start.call( that, event, tracksByStart[ startIndex ] );
+            tracks.startIndex++;
+          }
+          startIndex++;
+        } else {
+          // remove track event
+          Popcorn.removeTrackEvent( that, tracksByStart[ startIndex ]._id );
+          return;
+        }
       }
     }
 
