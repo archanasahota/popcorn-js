@@ -834,7 +834,7 @@
         tracksByStart  = tracks.byStart;
 
         //  Playbar advancing
-    if ( previousTime <= currentTime ) {
+    if ( previousTime < currentTime ) {
 
       while ( tracksByEnd[ tracks.endIndex ] && tracksByEnd[ tracks.endIndex ].end <= currentTime ) {
         //  If plugin does not exist on this instance, remove it
@@ -921,6 +921,7 @@
             tracksByEnd[ endIndex ]._natives.start.call( that, event, tracksByEnd [tracks.endIndex] );
           }
             endIndex--;
+            tracks.endIndex--;
         } else {
           // remove track event
           Popcorn.removeTrackEvent( that, tracksByEnd[ endIndex ]._id );
