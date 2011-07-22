@@ -2368,8 +2368,7 @@ test("Index Integrity", function () {
   equals(p.data.trackEvents.startIndex, 0, "p.data.trackEvents.startIndex is 0");
   equals(p.data.trackEvents.byStart.length, 3, "p.data.trackEvents.byStart.length is 3 - before play" );
 
-
-
+  equals(typeof p.timeUpdate, "function", "Popcorn object has the timeUpdate function");
 
   p.listen("timeupdate", function () {
 
@@ -2402,12 +2401,27 @@ test("Index Integrity", function () {
       equals(p.data.trackEvents.startIndex, 1, "p.data.trackEvents.startIndex is 1 - after removeTrackEvent");
       equals(p.data.trackEvents.endIndex, 1, "p.data.trackEvents.endIndex is 1 - after removeTrackEvent");
 
+      equals(p.data.trackEvents.byStart.length, 2, "p.data.trackEvents.byStart.length is 2 - before timeUpdate track event added" );
+      equals(p.data.trackEvents.startIndex, 1, "p.data.trackEvents.startIndex is 1 - before timeUpdate track event added");
+      equals(p.data.trackEvents.endIndex, 1, "p.data.trackEvents.endIndex is 1 - before timeUpdate track event added");
 
+      p.ff({
+        id: "timeUpdate-test-event",
+        start: 40,
+        end: 41
+      });
+
+      
+
+      equals(p.data.trackEvents.byStart.length === 3 && p.media.paused, true, "p.data.trackEvents.byStart.length is 3 and video is paused - after timeUpdate track event added" );
+
+      // shows that track events can be added when the video is paused
+      equals(p.data.trackEvents.startIndex === 2 && p.media.paused, true, "p.data.trackEvents.startIndex is 2 and video is paused - after timeUpdate track event added");
+      equals(p.data.trackEvents.endIndex === 2 && p.media.paused, true, "p.data.trackEvents.endIndex is 2 and video is paused - after timeUpdate track event added");
+
+      p.removeTrackEvent("timeUpdate-test-event");
 
       p.currentTime(40).play();
-
-
-
     }
   });
 
@@ -2415,6 +2429,7 @@ test("Index Integrity", function () {
 
 
 });
+
 
 test("Popcorn.disable/enable/toggle", function() {
 
