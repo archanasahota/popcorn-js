@@ -706,6 +706,14 @@
       }
     }
 
+    if ( track.start <= obj.media.currentTime && track.end >= obj.media.currentTime ) {
+      track.startIndex = idx + 1;
+    }
+
+    if ( obj.media.currentTime >= track.end ) {
+      track.startIndex = idx + 1;
+    }
+
     // Store references to user added trackevents in ref table
     if ( track._id ) {
       Popcorn.addTrackEvent.ref( obj, track );
@@ -833,10 +841,7 @@
         tracksByEnd    = tracks.byEnd,
         tracksByStart  = tracks.byStart,
 
-    checkTrackEvents = function( start, end ) {
-       
-      tracks.endIndex = end || tracks.endIndex;
-      tracks.startIndex = start || tracks.startIndex;
+    checkTrackEvents = function() {
 
        while ( tracksByEnd[ tracks.endIndex ] && tracksByEnd[ tracks.endIndex ].end <= currentTime ) {
         //  If plugin does not exist on this instance, remove it
@@ -915,7 +920,7 @@
     // time bar is not moving ( video is paused )
     } else if ( previousTime === currentTime ) {
      
-     checkTrackEvents( 0, 0 );
+     checkTrackEvents();
     }
 
     tracks.previousUpdateTime = currentTime;
