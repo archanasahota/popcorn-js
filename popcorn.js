@@ -711,7 +711,7 @@
     }
 
     if ( obj.media.currentTime >= track.end ) {
-      track.startIndex = idx + 1;
+      track.endIndex = idx + 1;
     }
 
     // Store references to user added trackevents in ref table
