@@ -2436,7 +2436,7 @@ test("Popcorn.disable/enable/toggle", function() {
 
   var $pop = Popcorn( "#video" ),
       count = 0,
-      expects = 5;
+      expects = 6;
 
   expect( expects );
 
@@ -2470,11 +2470,16 @@ test("Popcorn.disable/enable/toggle", function() {
 
     ok( !document.getElementById("toggler-test"), "No toggler container, disabled toggler plugin correctly never ran" );
     plus();
-
+    
     // Test per-instance toggle on
     $pop.toggle( "toggler" );
-    ok( $pop.data.disabled.indexOf("toggler") === -1, "toggle() plugin: toggler is re-enabled" );
+    ok( $pop.data.disabled.indexOf("toggler") > -1, "toggle() plugin: toggler is re-enabled" );
     plus();
+
+    $pop.toggle( "toggler" );
+    ok( $pop.data.disabled.indexOf("toggler") === -1, "toggle() plugin: toggler is disabled" );
+    plus();
+
   });
 
   $pop.toggler({
