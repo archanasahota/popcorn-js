@@ -2364,8 +2364,8 @@ test("Index Integrity", function () {
 
   stop( 10000 );
 
-  equals(p.data.trackEvents.endIndex, 1, "p.data.trackEvents.endIndex is 0");
-  equals(p.data.trackEvents.startIndex, 1, "p.data.trackEvents.startIndex is 0");
+  equals(p.data.trackEvents.endIndex, 1, "p.data.trackEvents.endIndex is 1");
+  equals(p.data.trackEvents.startIndex, 1, "p.data.trackEvents.startIndex is 1");
   equals(p.data.trackEvents.byStart.length, 3, "p.data.trackEvents.byStart.length is 3 - before play" );
 
   equals(typeof p.timeUpdate, "function", "Popcorn object has the timeUpdate function");
@@ -2411,8 +2411,6 @@ test("Index Integrity", function () {
         end: 41
       });
 
-      
-
       equals(p.data.trackEvents.byStart.length === 3 && p.media.paused, true, "p.data.trackEvents.byStart.length is 3 and video is paused - after timeUpdate track event added" );
 
       // shows that track events can be added when the video is paused
@@ -2427,16 +2425,15 @@ test("Index Integrity", function () {
 
   p.play();
 
-
 });
-
 
 test("Popcorn.disable/enable/toggle", function() {
 
-
   var $pop = Popcorn( "#video" ),
       count = 0,
-      expects = 6;
+      expects = 5;
+
+  $pop.currentTime(39).play();
 
   expect( expects );
 
@@ -2469,11 +2466,6 @@ test("Popcorn.disable/enable/toggle", function() {
     // look for: "toggler-test"
 
     ok( !document.getElementById("toggler-test"), "No toggler container, disabled toggler plugin correctly never ran" );
-    plus();
-    
-    // Test per-instance toggle on
-    $pop.toggle( "toggler" );
-    ok( $pop.data.disabled.indexOf("toggler") > -1, "toggle() plugin: toggler is re-enabled" );
     plus();
 
     $pop.toggle( "toggler" );
