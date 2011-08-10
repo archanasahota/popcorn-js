@@ -913,7 +913,7 @@
           tracks.endIndex--;
         } else {
           // remove track event
-          Popcorn.removeTrackEvent( that, tracksByEnd[ tracks.endIndex ]._id );
+          Popcorn.removeTrackEvent( obj, tracksByEnd[ tracks.endIndex ]._id );
           return;
         } 
       }
