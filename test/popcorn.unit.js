@@ -390,9 +390,10 @@ test( "Object", function () {
 
   var popped = Popcorn( "#video" ),
       popObj = Popcorn( document.getElementById( "video" ) ),
-      methods = "load play pause currentTime mute volume roundTime exec removePlugin",
+      methods = "load play pause currentTime mute volume roundTime exec removePlugin duration " +
+                "preload playbackRate autoplay loop controls volume muted buffered readyState seeking paused played seekable ended",
       count = 0,
-      expects = 30;
+      expects = 60;
 
   expect( expects );
 
@@ -499,7 +500,7 @@ test("roundTime", function () {
 
 });
 
-
+  
 test("exec", function () {
 
   QUnit.reset();
@@ -680,6 +681,39 @@ test("Popcorn.events.hooks: canplayall", function() {
     // this should trigger re-fires of the original event
     this.currentTime(0);
   });
+});
+
+test("Popcorn.events.hooks: canplayall fires immediately if ready", function() {
+  //qunit-fixture
+
+  var $pop = Popcorn("#video"),
+    expects = 1,
+    count = 0,
+    fired = 0;
+
+  expect(expects);
+
+  function plus(){
+    if ( ++count == expects ) {
+      start();
+    }
+  }
+
+  stop( 20000 );
+
+  function poll() {
+    if ( $pop.media.readyState >= 2 ) {
+      // this should trigger immediately
+      $pop.listen("canplayall", function( event ) {
+        equal( ++fired, 1, "canplayall is fired immediately if readyState permits" );
+        plus();
+      });
+    } else {
+      setTimeout( poll, 10 );
+    }
+  }
+
+  poll();
 });
 
 /*
@@ -1270,6 +1304,37 @@ test("Configurable Defaults", function () {
 
 });
 
+test("Start Zero Immediately", function () {
+
+  var $pop = Popcorn("#video"),
+      expects = 1,
+      count   = 0;
+
+  function plus() {
+    if ( ++count === expects ) {
+      // clean up added events after tests
+      Popcorn.removePlugin("zero");
+      start();
+    }
+  }
+
+  stop();
+
+  $pop.pause().currentTime( 0 );
+
+  Popcorn.plugin( "zero", {
+    start: function() {
+      ok( true, "$pop.zero({ start:0, end: 2 }) ran without play()");
+      plus();
+    },
+    end: function() {}
+  });
+
+  $pop.zero({ 
+    start:0, 
+    end: 2 
+  });
+});
 test("Update Timer", function () {
 
   QUnit.reset();

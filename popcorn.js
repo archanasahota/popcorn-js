@@ -180,13 +180,13 @@
             start: -1,
             end: -1
           }],
-          byEnd:   [{
+          byEnd: [{
             start: -1,
             end: -1
           }],
           startIndex: 0,
-          endIndex:   0,
-          previousUpdateTime: 0
+          endIndex: 0,
+          previousUpdateTime: -1
         }
       };
 
@@ -352,7 +352,8 @@
   //  an object with defined methods
   Popcorn.extend(Popcorn.p, (function() {
 
-      var methods = "load play pause currentTime playbackRate mute volume duration",
+      var methods = "load play pause currentTime playbackRate mute volume duration preload playbackRate " +
+                    "autoplay loop controls muted buffered readyState seeking paused played seekable ended",
           ret = {};
 
 
@@ -368,7 +369,7 @@
           }
 
 
-          if ( arg !== false && arg !== null && typeof arg !== "undefined" ) {
+          if ( arg != null ) {
 
             this.media[ name ] = arg;
 
@@ -571,7 +572,7 @@
 
           // Execute hook add method if defined
           if ( eventHook.add ) {
-            eventHook.add.call( this );
+            eventHook.add.call( this, {}, fn );
           }
 
           // Reassign event type to our piggyback event type if defined
@@ -634,9 +635,19 @@
     hooks: {
       canplayall: {
         bind: "canplaythrough",
-        add: function() {
+        add: function( event, callback ) {
+
+          var state = false;
+
+          if ( this.media.readyState ) {
+
+            callback.call( this, event );
+
+            state = true;
+          }
+
           this.data.hooks.canplayall = {
-            fired: false
+            fired: state
           };
         },
         // declare special handling instructions
@@ -660,7 +671,8 @@
 
   //  Protected API methods
   Popcorn.protect = {
-    natives: "load play pause currentTime playbackRate mute volume duration removePlugin roundTime trigger listen unlisten exec".toLowerCase().split( /\s+/ )
+    natives: ( "load play pause currentTime playbackRate mute volume duration removePlugin roundTime trigger listen unlisten exec" +
+              "preload playbackRate autoplay loop controls muted buffered readyState seeking paused played seekable ended" ).toLowerCase().split( /\s+/ )
   };
 
   // Internal Only - Adds track events to the instance object
@@ -996,9 +1008,7 @@
 
     //  If `manifest` arg is undefined, check for manifest within the `definition` object
     //  If no `definition.manifest`, an empty object is a sufficient fallback
-    if ( !manifest ) {
-      manifest = definition.manifest || {};
-    }
+    Popcorn.manifest[ name ] = manifest = manifest || definition.manifest || {};
 
     // apply safe, and empty default functions
     methods.forEach(function( method ) {
@@ -1093,11 +1103,6 @@
 
       return this;
     };
-
-    //  Augment the manifest object
-    if ( manifest || ( "manifest" in definition ) ) {
-      Popcorn.manifest[ name ] = manifest || definition.manifest;
-    }
 
     //  Assign new named definition
     plugin[ name ] = function( options ) {
@@ -1485,48 +1490,54 @@
     // HH:MM:SS;FF
     // Hours and minutes are optional. They default to 0
     toSeconds: function( timeStr, framerate ) {
-        //Hours and minutes are optional
-        //Seconds must be specified
-        //Seconds can be followed by milliseconds OR by the frame information
+        // Hours and minutes are optional
+        // Seconds must be specified
+        // Seconds can be followed by milliseconds OR by the frame information
         var validTimeFormat = /^([0-9]+:){0,2}[0-9]+([.;][0-9]+)?$/,
-            errorMessage = "Invalid time format";
+            errorMessage = "Invalid time format",
+            digitPairs, lastIndex, lastPair, firstPair,
+            frameInfo, frameTime;
 
         if ( typeof timeStr === "number" ) {
           return timeStr;
-        } else if ( typeof timeStr === "string" ) {
-          if ( ! validTimeFormat.test( timeStr ) ) {
-            Popcorn.error( errorMessage );
-          }
-        } else {
+        }
+
+        if ( typeof timeStr === "string" &&
+              !validTimeFormat.test( timeStr ) ) {
           Popcorn.error( errorMessage );
         }
 
-        var t = timeStr.split( ":" ),
-            lastIndex = t.length - 1,
-            lastElement = t[ lastIndex ];
+        digitPairs = timeStr.split( ":" );
+        lastIndex = digitPairs.length - 1;
+        lastPair = digitPairs[ lastIndex ];
 
-        //Fix last element:
-        if ( lastElement.indexOf( ";" ) > -1 ) {
-          var frameInfo = lastElement.split( ";" ),
-              frameTime = 0;
+        // Fix last element:
+        if ( lastPair.indexOf( ";" ) > -1 ) {
+
+          frameInfo = lastPair.split( ";" );
+          frameTime = 0;
 
           if ( framerate && ( typeof framerate === "number" ) ) {
-              frameTime = parseFloat( frameInfo[ 1 ], 10 ) / framerate;
+            frameTime = parseFloat( frameInfo[ 1 ], 10 ) / framerate;
           }
 
-          t[ lastIndex ] =
-            parseInt( frameInfo[ 0 ], 10 ) + frameTime;
+          digitPairs[ lastIndex ] = parseInt( frameInfo[ 0 ], 10 ) + frameTime;
         }
 
-        if ( t.length === 1 ) {
-          return parseFloat( t[ 0 ], 10 );
-        } else if ( t.length === 2 ) {
-          return ( parseInt( t[ 0 ], 10 ) * 60 ) + parseFloat( t[ 1 ], 10 );
-        } else if ( t.length === 3 ) {
-          return ( parseInt( t[ 0 ], 10 ) * 3600 ) +
-                 ( parseInt( t[ 1 ], 10 ) * 60 ) +
-                 parseFloat( t[ 2 ], 10 );
-        }
+        firstPair = digitPairs[ 0 ];
+
+        return {
+
+          1: parseFloat( firstPair, 10 ),
+
+          2: ( parseInt( firstPair, 10 ) * 60 ) +
+                parseFloat( digitPairs[ 1 ], 10 ),
+
+          3: ( parseInt( firstPair, 10 ) * 3600 ) +
+              ( parseInt( digitPairs[ 1 ], 10 ) * 60 ) +
+                parseFloat( digitPairs[ 2 ], 10 )
+
+        }[ digitPairs.length || 1 ];
     }
   };
 
