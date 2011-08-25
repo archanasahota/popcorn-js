@@ -182,6 +182,7 @@
         // Playback track event queues
         trackEvents: {
           byStart: [{
+
             start: -1,
             end: -1
           }],
@@ -212,6 +213,7 @@
           });
 
           that.media.addEventListener( "timeupdate", function( event ) {
+
             Popcorn.timeUpdate( that, event );
           }, false );
         } else {
