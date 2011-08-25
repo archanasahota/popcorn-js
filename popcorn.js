@@ -873,7 +873,7 @@
 
   Popcorn.timeUpdate = function( obj, event ) {
 
-    var currentTime    = obj.media.currentTime,
+    var currentTime    = obj.currentTime,
         previousTime   = obj.data.trackEvents.previousUpdateTime,
         tracks         = obj.data.trackEvents,
         tracksByEnd    = tracks.byEnd,
@@ -884,7 +884,10 @@
 
       while ( tracksByEnd[ tracks.endIndex ] && tracksByEnd[ tracks.endIndex ].end <= currentTime ) {
         //  If plugin does not exist on this instance, remove it
-        if ( !tracksByEnd[ tracks.endIndex ]._natives || !!obj[ tracksByEnd[ tracks.endIndex ]._natives.type ] ) {
+        if ( !tracksByEnd[ tracks.endIndex ]._natives ||
+            ( !!Popcorn.registryByName[ tracksByEnd[ tracks.endIndex ]._natives.type ] ||
+              !!obj[ tracksByEnd[ tracks.endIndex ]._natives.type ] ) ) {
+
           if ( tracksByEnd[ tracks.endIndex ]._running === true ) {
             tracksByEnd[ tracks.endIndex ]._running = false;
             tracksByEnd[ tracks.endIndex ]._natives.end.call( obj, event, tracksByEnd[ tracks.endIndex ] );
@@ -899,7 +902,10 @@
 
       while ( tracksByStart[ tracks.startIndex ] && tracksByStart[ tracks.startIndex ].start <= currentTime ) {
         //  If plugin does not exist on this instance, remove it
-        if ( !tracksByStart[ tracks.startIndex ]._natives || !!obj[ tracksByStart[ tracks.startIndex ]._natives.type ] ) {
+        if ( !tracksByStart[ tracks.startIndex ]._natives ||
+          ( !!Popcorn.registryByName[ tracksByStart[ tracks.startIndex ]._natives.type ] ||
+            !!obj[ tracksByStart[ tracks.startIndex ]._natives.type ] ) ) {
+
           if ( tracksByStart[ tracks.startIndex ].end > currentTime &&
                 tracksByStart[ tracks.startIndex ]._running === false &&
                   obj.data.disabled.indexOf( tracksByStart[ tracks.startIndex ]._natives.type ) === -1 ) {
@@ -913,13 +919,17 @@
           Popcorn.removeTrackEvent( obj, tracksByStart[ tracks.startIndex ]._id );
           return;
         }
-      } 
+      }
+
     // Playbar receding
     } else if ( previousTime > currentTime ) {
 
       while ( tracksByStart[ tracks.startIndex ] && tracksByStart[ tracks.startIndex ].start > currentTime ) {
         // if plugin does not exist on this instance, remove it
-        if ( !tracksByStart[ tracks.startIndex ]._natives || !!obj[ tracksByStart[ tracks.startIndex ]._natives.type ] ) {
+        if ( !tracksByStart[ tracks.startIndex ]._natives ||
+          ( !!Popcorn.registryByName[ tracksByStart[ tracks.startIndex ]._natives.type ] ||
+            !!obj[ tracksByStart[ tracks.startIndex ]._natives.type ] ) ) {
+
           if ( tracksByStart[ tracks.startIndex ]._running === true ) {
             tracksByStart[ tracks.startIndex ]._running = false;
             tracksByStart[ tracks.startIndex ]._natives.end.call( obj, event, tracksByStart[ tracks.startIndex ] );
@@ -934,7 +944,10 @@
 
       while ( tracksByEnd[ tracks.endIndex ] && tracksByEnd[ tracks.endIndex ].end > currentTime ) {
         // if plugin does not exist on this instance, remove it
-        if ( !tracksByEnd[ tracks.endIndex ]._natives || !!obj[ tracksByEnd[ tracks.endIndex ]._natives.type ] ) {
+        if ( !tracksByEnd[ tracks.endIndex ]._natives ||
+          ( !!Popcorn.registryByName[ tracksByEnd[ tracks.endIndex ]._natives.type ] ||
+            !!obj[ tracksByEnd[ tracks.endIndex ]._natives.type ] ) ) {
+
           if ( tracksByEnd[ tracks.endIndex ].start <= currentTime &&
                 tracksByEnd[ tracks.endIndex ]._running === false  &&
                   obj.data.disabled.indexOf( tracksByEnd[ tracks.endIndex ]._natives.type ) === -1 ) {
@@ -947,13 +960,11 @@
           // remove track event
           Popcorn.removeTrackEvent( obj, tracksByEnd[ tracks.endIndex ]._id );
           return;
-        } 
+        }
       }
-    // time bar is not moving ( video is paused )
     }
 
     tracks.previousUpdateTime = currentTime;
-
   };
 
   //  Map and Extend TrackEvent functions to all Popcorn instances
