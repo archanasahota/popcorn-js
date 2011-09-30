@@ -23,7 +23,7 @@
         .identica({
           start:          5,                // seconds, mandatory
           end:            15,               // seconds, mandatory
-          src:            '@humphd',     // mandatory, also accepts hash tags
+          src:            '@einfeldt',     // mandatory, also accepts hash tags
           height:         200,              // optional
           width:          250,              // optional
           target:         'identicadiv'      // mandatory
@@ -74,10 +74,8 @@
 
         if ( !window.TWTR && !scriptLoading ) {
           scriptLoading = true;
-        Popcorn.getScript( "http://widgets.twimg.com/j/2/widget.js" );
-	//Popcorn.getScript( "http://u0d.de/97c648/mootools_1.2.4_core_yc.js" );
-	//Popcorn.getScript( "http://u0d.de/8c6bec/mootools_1.2.4.4_more.js" );
-	//Popcorn.getScript( "http://u0d.de/9b019f/identicawidget.js" );
+        //Popcorn.getScript( "http://widgets.twimg.com/j/2/widget.js" );
+	Popcorn.getScript( "http://kentbrewster.com/js/identica-badge-real.js" );
         }
 
         var target = document.getElementById( options.target );
